@@ -1,55 +1,29 @@
-from django.http import HttpResponse,JsonResponse
-from .serializers import *
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
-
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+from commonutils.pagination import GenericPagiantion
+from .serializers import *
 
 
 class UserProfileView(APIView):
-    
     def post(self,request):
-        payload = request.data
-        print(payload)
-        if payload :
-
-            email = payload.get('email')
-            first_name = payload.get('first_name')
-            groups = payload.get('groups')
-            password = payload.get('password')
-            user_timezone = payload.get("user_timezone")
-            confirm_password = payload.get('confirm_password')
-
-            # print(payload)
-            user_serializer = RegisterSerializer(data=payload)
-            print(user_serializer,'----------=>>>>>>>>')
-            if user_serializer.is_valid():
-                user_serializer.save()
-
-                
-                resp = {
-                            'resultCode': '1',
-                            'resultDescription': 'user is created succesfully'
-                        }
-                return Response(resp, status=status.HTTP_200_OK)
-            else:
-                resp = {
-                    'errorMessage': 'User with this email already exist',
-                    'resultCode': '0',
-                    'resultDescription': 'Please fill the form correctly'
-                }
-                return Response(resp, status=status.HTTP_200_OK)
-        else : 
-
+        user_serializer = RegisterSerializer(data=request.data)
+        if user_serializer.is_valid():
+            user_serializer.save()
             resp = {
-                        'resultCode': '0',
-                        'resultDescription': 'Required fields are missing'
+                        'resultCode': '1',
+                        'resultDescription': 'user is created succesfully'
                     }
             return Response(resp, status=status.HTTP_200_OK)
-            
+        else:
+            resp = {
+                'errorMessage': 'User with this email already exist',
+                'resultCode': '0',
+                'resultDescription':user_serializer.errors
+            }
+            return Response(resp, status=status.HTTP_401_UNAUTHORIZED)
 
     def get(self,request):
         user_se = UserSerializer()
@@ -73,11 +47,6 @@ class UserProfileView(APIView):
             
             return Response(resp, status=status.HTTP_200_OK)
 
-
-
-from rest_framework.generics import ListAPIView
-from rest_framework.filters import SearchFilter, OrderingFilter
-from commonutils.pagination import GenericPagiantion
 
 
 class UserPaginationOrder(ListAPIView):

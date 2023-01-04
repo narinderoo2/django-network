@@ -3,29 +3,53 @@ from rest_framework import serializers
 
 
 class CountrySerializers(serializers.ModelSerializer):
+    state_count = serializers.SerializerMethodField()
+
     class Meta:
         model = CountryName
-        fields = "__all__"
+        fields = ("name",'description','state_count','id')
+    
+    def get_state_count(self, obj):
+        ord = StateName.objects.filter(countryId=obj.id).count()
+        return ord
+
+# class StateSerializers(serializers.ModelSerializer):
+#     country_name = serializers.CharField(source="countryId.name")
+#     class Meta:
+#         model = StateName
+#         fields = "__all__"
 
 class StateSerializers(serializers.ModelSerializer):
-    country = serializers.CharField(source="countryId.name")
+    country_name = serializers.CharField(source="countryId.name")
+    city_count = serializers.SerializerMethodField()
+    # state = serializers.CharField(source="id")
     class Meta:
         model = StateName
-        fields = "__all__"
+        fields =  ('name','id','countryId','country_name','city_count')
+
+
+    def get_city_count(self, obj):
+        ord = CityName.objects.filter(state=obj.id).count()
+        return ord
+
 
 class CitySerializers(serializers.ModelSerializer):
-    country = serializers.CharField(source="country.name")
-    state = serializers.CharField(source="state.name")
+    country_name = serializers.CharField(source="country.name")
+    state_name = serializers.CharField(source="state.name")
 
     class Meta:
         model = CityName
-        fields = "__all__"
+        fields = ('name','country','country_name','state_name','state','latitude','longitude','id')
+
+
+
+
 
 class CountryCreateSerializers(serializers.ModelSerializer):
     name = serializers.CharField(max_length = 200)
     class Meta:
         model = CountryName
-        fields = ("name",)
+        fields = ("name","description")
     
     def validate_name(self,value):
         if CountryName.objects.filter(name=value.upper()).exists():
@@ -49,8 +73,3 @@ class CityCreateSerializers(serializers.ModelSerializer):
         fields = ("name","country","state","latitude","longitude")
 
    
-class StateSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = StateName
-        fields = ('id','name','countryId')
-
