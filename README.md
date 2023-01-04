@@ -1,1 +1,2 @@
-"# django-network" 
+Django Api 
+Angular FE
