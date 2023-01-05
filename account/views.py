@@ -48,6 +48,41 @@ class UserProfileView(APIView):
             return Response(resp, status=status.HTTP_200_OK)
 
 
+from django.core.mail import send_mail
+from django.conf import settings
+
+
+from utils.account.account_email import *
+
+class EmailCheck(APIView):
+
+    def post(self,request):
+        payload = request.data
+        ser = EmailCheckSerializer(data=payload)
+        if ser.is_valid():
+
+            result = send_otp('user_name', 'narender.singh@echelonedge.com', '222')
+           
+            print(result,'resultresult')
+            # send_mail(
+            # subject='Add an eye-catching subject',
+            # message='Write an amazing message',
+            # from_email=settings.EMAIL_HOST_USER,
+            # recipient_list=['narender.singh@echelonedge.com'])
+
+            resp = {
+                'errorMessage': 'Verify email adress succesfully',
+                'resultCode': '1',
+            }
+            return Response(resp, status=status.HTTP_200_OK)
+        else:
+            resp = {
+                'errorMessage': 'Please enter valid email adress ',
+                'resultCode': '0',
+                'resultDescription':ser.errors
+            }
+            return Response(resp, status=status.HTTP_404_NOT_FOUND)
+
 
 class UserPaginationOrder(ListAPIView):
     queryset = UserProfile.objects.all()

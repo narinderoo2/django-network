@@ -30,5 +30,23 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+class EmailCheckSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=200)
+    class Meta:
+        fields = ['email']
+
+    def validate(self,attr):
+            ser_Validation = UserProfile.objects.filter(email=attr['email']).first()
+            if ser_Validation is None:
+                 raise serializers.ValidationError('Enter valid email address')
+            return attr
+            
+       
+        
+        
+        
+
+
+
 
     
