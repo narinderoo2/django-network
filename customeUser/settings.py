@@ -9,28 +9,30 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+import os
 from pathlib import Path
+from datetime import timedelta
+import environ
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ewz^(ys%i@+3!p3whh_t76-@)u*vks#rlfz*ukck8s*$w^p&s5'
+SECRET_KEY =os.environ.get('SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = (
-  'http://localhost:4300',
-  'http://127.0.0.1:4300',
-)
+# CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ORIGIN_WHITELIST = ('http://localhost:4300','http://127.0.0.1:4300')
 
 # Application definition
 
@@ -41,13 +43,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'account',
     'rest_framework',
-    'region',
+    "rest_framework_simplejwt",
     'corsheaders',
+    'account','region',
+
+
 ]
 
 
+
+
+REST_FRAMEWORK = {
+      'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ]
+
+}
 
 
 MIDDLEWARE = [
@@ -145,3 +157,36 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'UPDATE_LAST_LOGIN': False,
+
+    'ALGORITHM': 'HS256',
+    }
+
+
+'''
+you email and password show in setting file 
+    if we dont show pass and email then use env file 
+    - import pip install environ
+    - env file user key = value 
+    use git ignore file 
+
+'''
+
+
+
+
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER =os.environ.get('EMAIL_USER') 
+EMAIL_HOST_PASSWORD =os.environ.get('EMAIL_PASSWORD') 
+EMAIL_PORT = os.environ.get('EMAIL_PORT') 
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False

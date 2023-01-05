@@ -86,6 +86,36 @@ class StateChanges(APIView):
         }
         return Response(rsp,status=status.HTTP_200_OK)
 
+    def patch(self,request,pk=None):
+        if pk is not None:
+            try:
+                get_id = StateName.objects.get(pk=pk)
+            except StateName.DoesNotExist:
+                rsp={
+                "resCode":'0',
+                'message':'Select state name is not valid'}
+                return Response(rsp,status=status.HTTP_200_OK)
+            else:
+                state_ser = StateCreateSerializers(get_id,data=request.data,partial=True)
+                if state_ser.is_valid():
+                    state_ser.save()
+                    rsp = {
+                        'resCode':'1',
+                        'message':'State is Update succesfully'
+                    }
+                    return Response(rsp,status=status.HTTP_200_OK)
+                else:
+                        rsp={
+                "resCode":'0',
+                'message':'Select state name is not valid'}
+                return Response(rsp,status=status.HTTP_200_OK)
+        else:
+            rsp={
+            "resCode":'0',
+            'message':'Unable to fetach data '}
+            return Response(rsp,status=status.HTTP_200_OK)
+        
+
     def delete(self,request,pk):
         if pk is not None:
             try:
@@ -223,8 +253,8 @@ class CountryPagination(ListAPIView):
     serializer_class = CountrySerializers
     filter_backends = [OrderingFilter,SearchFilter]
     pagination_class = GenericPagiantion
-    ordering_fields = ['name']
-    searching_fields = ['name']
+    ordering_fields = ['name','description']
+    search_fields = ['name','description']
 
 class StatePagination(ListAPIView):
     queryset = StateName.objects.all()
@@ -232,12 +262,12 @@ class StatePagination(ListAPIView):
     filter_backends = [OrderingFilter,SearchFilter]
     pagination_class = GenericPagiantion
     ordering_fields = ['name','countryId__name']
-    searching_fields = ['name','countryId__name']
+    search_fields = ['name','countryId__name']
 
 class CityPagination(ListAPIView):
     queryset = CityName.objects.all()
     serializer_class = CitySerializers
     filter_backends = [OrderingFilter,SearchFilter]
     pagination_class = GenericPagiantion
-    ordering_fields = ['name','country__name','state__name']
-    searching_fields = ['name','country__name','state__name']
+    ordering_fields = ['name','country__name','state__name','latitude','longitude']
+    search_fields = ['name','country__name','state__name','latitude','longitude']
