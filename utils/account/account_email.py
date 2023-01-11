@@ -5,7 +5,7 @@ from django.conf import settings
 
 
 def send_otp(user_name, to_email, otp):
-    subject = 'Hello, {} Request to Reset Password'
+    subject =  '''Hello, {} Request to Reset Password'''.format(user_name)
     message = '''
     Hi {},
 
@@ -20,7 +20,7 @@ def send_otp(user_name, to_email, otp):
     Thanks & Regards
     Narinder Singh
 
-    '''.format(user_name,user_name, otp)
+    '''.format(to_email, otp)
 
     email_from = settings.EMAIL_HOST_USER
     recipient_list = [to_email,]
@@ -52,5 +52,7 @@ def send_mail(
     )
     if html_message:
         mail.attach_alternative(html_message, "text/html")
-
+    print('-----2')
     return mail.send()
+
+   
