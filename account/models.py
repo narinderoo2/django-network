@@ -36,3 +36,22 @@ DefaultImage = 'profileImage/default.png'
 class ProfileImage(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     image = models.ImageField(upload_to=image_upload_to, default=DefaultImage)
+
+
+class OtpConfirm(models.Model):
+    email = models.EmailField(max_length=200)
+    otp = models.CharField(max_length=10)
+    time_stamp = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.otp
+
+
+class PasswordHistory(models.Model):
+    email = models.ForeignKey(UserProfile,on_delete=models.CASCADE)
+    password = models.CharField(max_length=200)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    # def __str__(self):
+    #     return self.create_at
+
