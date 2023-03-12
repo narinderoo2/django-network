@@ -136,10 +136,7 @@ class StateChanges(APIView):
         }
         return Response(rsp,status=status.HTTP_200_OK)
 
-    def get(self,request,pk=None):
-
-        print(pk,'====>>')
-        
+    def get(self,request,pk=None):        
         if pk is not None:
             try:
                 state_id = StateName.objects.get(pk=pk)
@@ -158,8 +155,6 @@ class StateChanges(APIView):
                 return Response(rep,status=status.HTTP_200_OK)
         else:
             state_data = StateName.objects.all()
-
-            print(state_data,'----->>')
             serializer = StateSerializers(state_data,many=True)
             rep = {'resCode':'1','result':serializer.data}
             return Response(rep,status=status.HTTP_200_OK)

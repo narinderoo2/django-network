@@ -13,16 +13,10 @@ class CountrySerializers(serializers.ModelSerializer):
         ord = StateName.objects.filter(countryId=obj.id).count()
         return ord
 
-# class StateSerializers(serializers.ModelSerializer):
-#     country_name = serializers.CharField(source="countryId.name")
-#     class Meta:
-#         model = StateName
-#         fields = "__all__"
 
 class StateSerializers(serializers.ModelSerializer):
     country_name = serializers.CharField(source="countryId.name")
     city_count = serializers.SerializerMethodField()
-    # state = serializers.CharField(source="id")
     class Meta:
         model = StateName
         fields =  ('name','id','countryId','country_name','city_count')
