@@ -21,5 +21,5 @@ from django.urls import path
 from websocket.consumers import *
 
 websocket_urlpatterns = [
-    path('ws/test/',SyncConnection.as_asgi())
+    path('ws/device-details/',ScoketConnection.as_asgi())
 ]

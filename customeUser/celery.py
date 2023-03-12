@@ -27,5 +27,6 @@ app.conf.beat_schedule = {
         'task': 'device_details_save',
         'schedule': 60.0,
     },
+
     
 }     

@@ -14,7 +14,7 @@ import psutil
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 import json
 from django.http import JsonResponse
-
+from django.core.cache import cache
 
 def get_size(bytes, suffix="B"):
     """ Scale bytes to its proper format
@@ -29,7 +29,7 @@ def get_size(bytes, suffix="B"):
         bytes /= factor
 
 
-class TestingCPU(APIView):
+class PcDeviceDetails(APIView):
 
     """
     While delay is convenient, it doesn't give you as much control as using apply_async. 
@@ -52,7 +52,12 @@ class TestingCPU(APIView):
         
         if get_device_details:
             get_all_data = ChartDetails.objects.filter(name=get_device_details[0]['id'])
-            serializer = ChartDetailsSerializer(get_all_data, many=True)    
+            serializer = ChartDetailsSerializer(get_all_data, many=True)
+            if cache.get(get_device_details[0]['name']):
+                # print(cache.get(get_device_details[0]['name']))
+                pass
+            else:
+                cache.set(get_device_details[0]['name'],{'data':serializer.data})
             item = [{
                 'deivce_name' : get_device_details[0]['name'],
                 'deivce_ram':get_device_details[0]['total_ram'],
@@ -66,6 +71,6 @@ class TestingCPU(APIView):
         else:
             rsp = {
             'resCode':'0',
-            "message":"Sorry, Please enter exist city"}
+            "message":"Sorry,device details is not find"}
             return Response(rsp,status=status.HTTP_200_OK)
         
