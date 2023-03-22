@@ -14,8 +14,6 @@ class UserProfile(AbstractUser):
     create_at = models.DateField(auto_now=True)
     password_attempted = models.CharField(default=0,max_length=2)
 
-
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
@@ -27,7 +25,7 @@ def image_upload_to(instance, filename):
     now = timezone.now()
     base, extension = splitext(filename.lower())
     milliseconds = now.microsecond // 1000
-    return f"profileImage/{base}_{now:%Y%m%d%H%M%S}{milliseconds}{extension}"
+    return f"media/profileImage/{base}_{now:%Y%m%d%H%M%S}{milliseconds}{extension}"
    
 DefaultImage = 'profileImage/default.png'
 
@@ -52,6 +50,24 @@ class PasswordHistory(models.Model):
     password = models.CharField(max_length=200)
     create_at = models.DateTimeField(auto_now_add=True)
 
-    # def __str__(self):
-    #     return self.create_at
+
+class Role(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Permission(models.Model):
+    """ ManyToManyField not use  on_delete=models.CASCADE """
+    role_id = models.ManyToManyField(Role,related_name="rolePermission")
+    name = models.CharField(max_length=100,unique=True)
+    createDate = models.DateTimeField(auto_now_add=True,blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+
+    
 

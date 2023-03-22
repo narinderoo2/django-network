@@ -8,6 +8,9 @@ from random import sample
 from utils.account.account_email import *
 from utils.account.password import *
 from .serializers import *
+from json import loads
+
+from utils.delete_and_validations.delete_multiple import *
 
 
 class UserProfileView(APIView):
@@ -237,6 +240,137 @@ class OTPCheck(APIView):
             return Response(resp, status=status.HTTP_200_OK)
 
 
+class RoleCRUD(APIView):
+
+    def get(self,request):
+        data = Role.objects.all()
+        serializer = RoleListingSerializer(data,many=True)
+        rep = {'resCode':'1','result':serializer.data}
+        return Response(rep,status=status.HTTP_200_OK)
+    
+    def post(self,request):
+        check_ser = CreateRoleSerializer(data=request.data)
+        if check_ser.is_valid():
+            check_ser.save()
+            return is_valid_message(check_ser,f"{check_ser.data['name']} role create sucssfully",True)
+        else:
+            return is_valid_message(check_ser.errors,"Please enter valid data",False)
+        
+    def patch(self,request,pk): 
+        name = request.data.get('name')
+        if name is None or "" or not name:
+            return is_valid_message(None,"Please enter valid name",False)
+        if pk:
+            try:
+                get_detalis = Role.objects.get(id=pk)
+            except Role.DoesNotExist:
+                return is_valid_message(None,"Role id does not match",False)
+            else:
+                unique_data_check = Role.objects.filter(name = name)
+                if unique_data_check:
+                    return is_valid_message(None,"Role name must be unique",False)
+                else:
+                    get_detalis.name = name
+                    get_detalis.save()
+                    return is_valid_message(None,f"{name} role update sucssfully",True)
+        else:
+            return  is_valid_message(None,"Please select update id",False)
+        
+    def delete(self,request):
+        return dynamic_delete_mutiple_data(request,Role,'role')
+
+
+
+
+
+
+class PermissionCRUD(APIView):
+
+    def get(self,request):
+        queryset = Permission.objects.all()
+        serializer = GetPermission(queryset,many=True)
+        return Response({'resCode':'1','result':serializer.data},status=status.HTTP_200_OK)
+    
+    def post(self,request):
+        get_ids = request.data.get("role_id")
+        if get_ids is None or "" or [] or not get_ids:
+            res= {'resCode':'0','message':"Please enter role id's"}
+            return Response(res,status=status.HTTP_200_OK)
+        else:
+            get_ids = loads(get_ids)
+            per_ser = CreatePermissionSerializers(data=request.data)
+            if per_ser.is_valid():
+                for row in get_ids:
+                    data = Role.objects.filter(id=row)
+                    if data is None or len(data) == 0:
+                        res= {'resCode':'0','message':f"Slected {row} number role id is not match "}
+                        return Response(res,status=status.HTTP_200_OK)
+                save =Permission.objects.create(name =per_ser.data['name'])
+                save.role_id.set(get_ids)
+                save.save()
+                res= {'resCode':'1','message':f"{per_ser.data['name']} permission create sucssfully"}
+                return Response(res,status=status.HTTP_200_OK)
+            else:
+                res= {'resCode':'0','message':"Please enter valid data", "serializerError":per_ser.errors,}
+                return Response(res,status=status.HTTP_200_OK)
+            
+    def patch(self,request,pk):
+        get_ids = request.data.get("role_id")
+        get_name = request.data.get("name")
+        
+        if pk:
+            try:
+                get_details = Permission.objects.get(id=pk)
+            except Permission.DoesNotExist:
+                res= {'resCode':'0','message':"Permision id is not match"}
+                return Response(res,status=status.HTTP_200_OK)
+            else:
+                if get_ids is None or "" or [] or not get_ids:
+                    res= {'resCode':'0','message':"Please enter role id's"}
+                    return Response(res,status=status.HTTP_200_OK)
+                if get_name is None or "" or not get_name:
+                    res= {'resCode':'0','message':"Please enter permission name"}
+                    return Response(res,status=status.HTTP_200_OK)
+                get_ids = loads(get_ids)
+                for row in get_ids:
+                    data = Role.objects.filter(id=row)
+                    if data is None or len(data) == 0:
+                        res= {'resCode':'0','message':f"Selected {row} number role id is not match "}
+                        return Response(res,status=status.HTTP_200_OK)
+                get_details.name = get_name
+                get_details.role_id.set(get_ids)
+                get_details.save()
+                res= {'resCode':'1','message':f"{get_name} permission update sucssfully"}
+                return Response(res,status=status.HTTP_200_OK)
+        else:
+
+            res= {'resCode':'0','message':"Please select update id"}
+            return Response(res,status=status.HTTP_200_OK)
+
+    def delete(self,request):
+        return dynamic_delete_mutiple_data(request,Permission,'permission')
+    
+        reasone = request.data.get("reason")
+        get_ids = request.data.get("ids")
+        if get_ids is None or "" or [] or not get_ids:
+            res= {'resCode':'0','message':"Please enter role id's"}
+            return Response(res,status=status.HTTP_200_OK)
+        
+        if reasone is None or ""  or not reasone:
+            res= {'resCode':'0','message':"Please enter permission delete reason"}
+            return Response(res,status=status.HTTP_200_OK)
+       
+        get_ids = loads(get_ids)
+        for row in get_ids:
+            data = Permission.objects.filter(id=row)
+            if data is None or len(data) == 0:
+                res= {'resCode':'0','message':f"Selected {row} permission id is not match "}
+                return Response(res,status=status.HTTP_200_OK)
+        data.delete()
+        res= {'resCode':'1','message':f"Permission delete sucssfully"}
+        return Response(res,status=status.HTTP_200_OK)
+
+
 class UserPaginationOrder(ListAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserSerializer
@@ -247,5 +381,16 @@ class UserPaginationOrder(ListAPIView):
     search_fields = ['id', 'username',
         'first_name','last_name','email','is_active','phone_number',
         ]
+
+
+
+
+class PermissionPaginationOrder(ListAPIView):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionListingSerializer
+    filter_backends = [OrderingFilter,SearchFilter]
+    pagination_class = GenericPagiantion
+    ordering_fields = ['role_id_name','name']
+    search_fields = ['role_id_name','name']
 
 

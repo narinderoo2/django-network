@@ -67,7 +67,7 @@ class ScoketConnection(AsyncConsumer):
 
         while True:
             resp = await db_to_redis_data_move(event)
-            time.sleep(20)
+            time.sleep(2)
 
             print("websocket details",resp)
             

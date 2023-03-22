@@ -6,7 +6,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include('account.urls')),
     path('region/', include('region.urls')),
-
-path('chart/', include("chart.urls")),    
-    # path('socket/', include('websocket.urls')),
+    path('chart/', include("chart.urls")),    
+    path('drop-down/', include("dropdown.urls")),    
 ]
