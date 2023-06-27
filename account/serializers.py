@@ -3,10 +3,11 @@ from .models import *
 
 
 class UserSerializer(serializers.ModelSerializer):
+    group_name = serializers.CharField(source="group.name",allow_null=True)
     class Meta:
         model=UserProfile
         fields = ['email','address','username','first_name','last_name',
-        'phone_number','flag','user_timezone','is_active']
+        'phone_number','flag','user_timezone','is_active','group_name']
 
     def validate(self, attrs):
         if(not attrs['first_name'] or len(attrs['first_name']) < 15):
@@ -16,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields =  ['email','username','password','first_name','last_name','phone_number','flag','user_timezone']
+        fields =  ['email','username','password','first_name','last_name','phone_number','flag','user_timezone','group']
         extra_kwargs = {
             'first_name':{'required':True},
         }
@@ -75,9 +76,6 @@ class CreateRoleSerializer(serializers.ModelSerializer):
                 return payload
                 
         
-
-
-
 class GetPermission(serializers.ModelSerializer):
     """depth revers key all value get """
     class Meta:
@@ -94,15 +92,13 @@ class CreatePermissionSerializers(serializers.ModelSerializer):
     def validate_name(self,payload):
         name = payload
         if name is None or "":
-            raise ValueError(f"Name cannot be empty")
+            raise serializers.ValidationError("Name cannot be empty")
         else:
             check = Permission.objects.filter(name=name)
             if check:
-                raise ValueError(f"Name must be unique")
+                raise serializers.ValidationError("Name must be unique")
             else:
                 return name
-
-
 
 
 class PermissionListingSerializer(serializers.ModelSerializer):

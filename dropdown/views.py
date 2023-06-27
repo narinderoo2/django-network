@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from account.models import Role
+from account.models import Role,UserGroup
 
 from .serializers import *
 
@@ -20,6 +20,9 @@ class DropDownListing(ListAPIView):
             if payload == "role":
                 get_list = Role.objects.all()
                 return serializer_listing(get_serializer_class(Role,['id','name']),get_list,'role')
+            elif payload == 'group':
+                get_list = UserGroup.objects.all()
+                return serializer_listing(get_serializer_class(UserGroup,['id','name']),get_list,'role')
             else:
                 res= {'resCode':'0','message':"Not get all lisintg",'result':[]}
                 return Response(res,status=status.HTTP_200_OK)

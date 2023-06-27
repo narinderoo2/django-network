@@ -3,9 +3,14 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from os.path import splitext
 
+class UserGroup(models.Model):
+    name = models.CharField(max_length=100,unique=True)
 
+    def __str__(self):
+        return self.name
 
 class UserProfile(AbstractUser):
+    group = models.ForeignKey(UserGroup,on_delete=models.CASCADE,null=True)
     email = models.EmailField(unique=True)
     address = models.CharField(max_length=30, blank=True)
     phone_number=models.CharField(blank=True,max_length=20,null=True)
@@ -28,6 +33,9 @@ def image_upload_to(instance, filename):
     return f"media/profileImage/{base}_{now:%Y%m%d%H%M%S}{milliseconds}{extension}"
    
 DefaultImage = 'profileImage/default.png'
+
+
+
 
 
 

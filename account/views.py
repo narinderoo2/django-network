@@ -31,28 +31,6 @@ class UserProfileView(APIView):
             }
             return Response(resp, status=status.HTTP_401_UNAUTHORIZED)
 
-    def get(self,request):
-        user_se = UserSerializer()
-        try:
-            resp = {
-                        'results': '1',
-                        'data': '2',
-                        'resultCode': '1',
-                        'resultDescription': 'Requested user data'
-                    }
-            return Response(resp, status=status.HTTP_200_OK)
-            
-        except Exception as e:
-            resp = {
-                        'results': 'user_ser.data',
-                        'data': 'ser_ser.data',
-                        'resultCode': '0',
-                        'resultDescription': 'Requested user data'
-                    }
-            
-            
-            return Response(resp, status=status.HTTP_200_OK)
-
 
 class EmailCheck(APIView):
 
@@ -311,8 +289,8 @@ class PermissionCRUD(APIView):
                 res= {'resCode':'1','message':f"{per_ser.data['name']} permission create sucssfully"}
                 return Response(res,status=status.HTTP_200_OK)
             else:
-                res= {'resCode':'0','message':"Please enter valid data", "serializerError":per_ser.errors,}
-                return Response(res,status=status.HTTP_200_OK)
+                return is_valid_message(per_ser.errors,"Please enter valid data",False)
+
             
     def patch(self,request,pk):
         get_ids = request.data.get("role_id")
@@ -350,25 +328,7 @@ class PermissionCRUD(APIView):
     def delete(self,request):
         return dynamic_delete_mutiple_data(request,Permission,'permission')
     
-        reasone = request.data.get("reason")
-        get_ids = request.data.get("ids")
-        if get_ids is None or "" or [] or not get_ids:
-            res= {'resCode':'0','message':"Please enter role id's"}
-            return Response(res,status=status.HTTP_200_OK)
-        
-        if reasone is None or ""  or not reasone:
-            res= {'resCode':'0','message':"Please enter permission delete reason"}
-            return Response(res,status=status.HTTP_200_OK)
        
-        get_ids = loads(get_ids)
-        for row in get_ids:
-            data = Permission.objects.filter(id=row)
-            if data is None or len(data) == 0:
-                res= {'resCode':'0','message':f"Selected {row} permission id is not match "}
-                return Response(res,status=status.HTTP_200_OK)
-        data.delete()
-        res= {'resCode':'1','message':f"Permission delete sucssfully"}
-        return Response(res,status=status.HTTP_200_OK)
 
 
 class UserPaginationOrder(ListAPIView):

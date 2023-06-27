@@ -1,0 +1,77 @@
+Docker 
+
+	The use of containers to deploy applications is 
+	called containerization
+	
+	Feature :- 
+		Flexible, Lightweight (use os(host) use cornal ) , Portable (container use every other server, os),
+		Lossely coupled (easy update , delete , create) , Scalable (isolated)
+		
+	
+	
+	
+
+Image :- 
+	- source code 
+	- configuariotion 
+
+Container :- 
+	- light weight verison of VM 
+	- isolated env
+	
+Docker file :- 
+	- instruction to run a applications in a container
+	
+- Dockerfile - create in file source
+- FROM node:16-alpine (node is pull image , 16 is version , alpine is light weight node file)
+- COPY source distination ( sCource - server.js is selected file copy and distination is paste in docker) 
+or 
+- COPY . /app/  (. is current dictiory { Dockerfile is current dictiory}, /app/ dictiory in container )
+
+
+If we have not required file node module and env variable file 
+	- create a file (.dockerignore)
+	- node_modules/
+	
+- WORKDIR /app (it is diclare working dictory file in container)
+so we can change 
+- COPY . . (source dict and container dict)
+
+- RUN npm install (we have not node_modules file show install all package)
+
+- CMD ["npm","run","dev"] ( after bulid code you can run cmd command) 
+or 
+- ENTRYPOINT ["npm","run","dev"]
+
+
+
+FROM node:16-alpine
+WORKDIR /app
+COPY . .
+RUN npm install 
+CMD ["npm","run","dev"]
+
+
+Docker Image :- is a read-only template that contains a set of instruction for creating a container
+				that can run on the Docker platform.
+				
+Docker Container :- run docker image 
+
+Bulid Image 
+
+- docker image build -t my-node-img . (. is cuurent dict dockerfile path name)
+	
+- docker images (check all images in docker ) 
+or
+- docker image ls 
+
+- docker container run my-node-img ( create new container and run selected image) 
+
+- docker --version ( check docker version check )
+
+- docker pull ubuntu (pull image in docker ) 
+
+- docker run -it --<name> ubuntu_container <name>(image name or image id ) 
+or 
+- docker run -it --name ubuntu_container ubuntu:latest ( ubuntu is repository and latest is tag)
+

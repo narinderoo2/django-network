@@ -26,5 +26,12 @@ def is_valid_message(seriliazer,message,serializer_Valid):
         rep= {'resCode':'1','message':message}
         return Response(rep,status=status.HTTP_200_OK)
     else:
-        rep= {'resCode':'0','message':message,"serializerError":seriliazer}
+        rep= {'resCode':'0','message':message,"serializerError":serializer_validaiton(seriliazer)}
         return Response(rep,status=status.HTTP_200_OK)
+    
+def serializer_validaiton(seriliazer):
+    if seriliazer:
+        new_error = {}
+        for field_name, field_errors in seriliazer.items():
+            new_error[field_name] = field_errors[0]
+        return new_error
